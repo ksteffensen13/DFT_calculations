@@ -56,6 +56,34 @@ Element PP_type Relativism	XCF     PP_name
 Al	PAW     Scalar  PBE     Al.pbe-n-kjpaw_psl.0.1.UPF
 ```
 
+8. If using cluster (like Digital Research Alliance of Canada), create .txt file in your directory listing python wheels for easy installation when running scripts. **Within this, will include cif2cell, numpy, and other Python wheels that you'll need**
+
+
+
+**First, create a virtual environment, then install cif2cell and any other wheels you might need. Then, create list of python wheels to load every time (stored in python_wheels.txt)**
+```
+module load StdEnv/2023 python/3.13.2
+ENVDIR=/tmp/$RANDOM
+virtualenv --no-download $ENVDIR
+source $ENVDIR/bin/activate
+pip install --no-index --upgrade pip
+pip install cif2cell
+pip freeze --local > python_wheels.txt
+deactivate
+rm -rf $ENVDIR
+```
+
+This creates a virtual environment, installs all the wheels you need, then saves a list of those wheels and their soruces in python_wheels.txt. Now, if we run a job and want to use the SAME set of wheels, we can load a virtual environment that calls on this .txt file to install everything
+
+**Note:** To call on this list of python wheels in a script, include the following.
+```
+module load StdEnv/2023 python/3.13.2
+virtualenv --no-download $SLURM_TMPDIR/env
+source $SLURM_TMPDIR/env/bin/activate
+pip install --no-index --upgrade pip
+pip install -r /home/ksteffen/python_wheels.txt
+python cif2cell <commands_to_run>
+```
 
 ####################################################################################################
 
