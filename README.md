@@ -229,18 +229,16 @@ Some manual checking is still required after each step of the process (ie checki
 
 For all steps, go to your main directory containing all of your results. For example, if you’re looking at FCC Aluminum with no other elements, this would be a folder called “Al_FCC”. Within that folder will be subfolders for each calculation type (called ‘kpoints’, ‘ecutwfc’, ‘ecutrho’, ‘lattice’, ‘geometry’, ‘relax’, and ‘vc-relax’). In this case, “Al_FCC” will be created wherever you specify the “compute_directory” variable to be in your input file. Below is what you have to do after each step:
 
-	•	kpoints: 
-	⁃	Once kpoint convergence has been run, check the “kpoints_output.txt” file. Each line shows the results of an scf calculation for a given kpoint grid. 
-	⁃	The 1st column lists the first kpoint number in that grid (ie if the grid is “12 10 8”, then this will show 12). 
-	⁃	The 2nd column lists the final energy of the system. 
-	⁃	The 3rd column lists the difference (absolute value) between the energy of that line and the energy of the previous line.
-	⁃	What we want is to find a k-point grid that results in little to no difference in energy (that is, the system can’t improve the calculation any further, so using more kpoints past that point is just a waste of computing infrastructure). 
-	⁃	What you have to do is decide on a suitable kpoint array based on the energy difference column. Choose an array that balances energy difference for computational time, then input that for “kpoint_grid” variable at the top of the input.sh file. 
+### kpoints: 
+* Once kpoint convergence has been run, check the “kpoints_output.txt” file. Each line shows the results of an scf calculation for a given kpoint grid. 
+* The 1st column lists the first kpoint number in that grid (ie if the grid is “12 10 8”, then this will show 12). 
+* The 2nd column lists the final energy of the system. 
+* The 3rd column lists the difference (absolute value) between the energy of that line and the energy of the previous line.
+* What we want is to find a k-point grid that results in little to no difference in energy (that is, the system can’t improve the calculation any further, so using more kpoints past that point is just a waste of computing infrastructure). 
+* What you have to do is decide on a suitable kpoint array based on the energy difference column. Choose an array that balances energy difference for computational time, then input that for “kpoint_grid” variable at the top of the input.sh file. 
 
-Example:
-
-For an output file containing:
-
+**Example for an output file containing:**
+```
 2 -78.87907422 0
 4 -78.80528285 0.0737914
 6 -78.81289438 0.00761153
@@ -261,19 +259,20 @@ For an output file containing:
 36 -78.81250634 0
 38 -78.81250634 0
 40 -78.81250633 9.99999e-09
+```
 
 We can see that beyond the kpoint grid “16”, the differences between energies are incredibly small, but every increase in kpoints requires more computing time and power. In this example, it was for an HCP structure, so if I go to the kpoints directory and look into the “kpoints16.in” file, I can see that the kpoint array for this is “16 16 10”. Now I’ll use “16 16 10” as my kpoint grid for any future calculations in this system. 
 
 
 
-	•	ecutwfc:
-	⁃	After running ecutwfc convergence, look in “ecutwfc_output.txt” file. 
-	⁃	Like with kpoints, first column is the value tested, 2nd is the energy, 3rd is the difference in energy. 
-	⁃	Again, we want to choose a value for ecutwfc after which the energy differences are consistently very small and  input value for ‘ecutwfc’ variable at the top of input.sh. 
-	⁃	NOTE: Each pseudopotential file has a value for ecutwfc and ecutrho inside of them. These are the minimum recommended values to use for that element. We must always use those values or higher. In the case of multiple elements, we should always use whatever values are the highest (ie if Al pseudopotential suggests ecutwfc of 40, and Fe pseudopotential suggests ecutwfc of 60, we should use 60 or higher). If our convergence values end up being below these pseudopotential recommendations, the script will automatically update to the pseudopotential recommendations, so you don’t have to worry about checking to make sure your convergence values are above the recommended, just choose values at which point the system is converged. 
+### ecutwfc:
+* After running ecutwfc convergence, look in “ecutwfc_output.txt” file. 
+* Like with kpoints, first column is the value tested, 2nd is the energy, 3rd is the difference in energy. 
+* Again, we want to choose a value for ecutwfc after which the energy differences are consistently very small and  input value for ‘ecutwfc’ variable at the top of input.sh. 
+* **NOTE:** Each pseudopotential file has a value for ecutwfc and ecutrho inside of them. These are the minimum recommended values to use for that element. We must always use those values or higher. In the case of multiple elements, we should always use whatever values are the highest (ie if Al pseudopotential suggests ecutwfc of 40, and Fe pseudopotential suggests ecutwfc of 60, we should use 60 or higher). If our convergence values end up being below these pseudopotential recommendations, the script will automatically update to the pseudopotential recommendations, so you don’t have to worry about checking to make sure your convergence values are above the recommended, just choose values at which point the system is converged. 
 
-Example:
-
+**Example:**
+```
 20 -78.81129574 0
 30 -78.81193593 0.00064019
 40 -78.81233275 0.00039682
@@ -285,19 +284,20 @@ Example:
 100 -78.81218015 5.191e-05
 110 -78.81218613 5.98e-06
 120 -78.81218584 2.9e-07
+```
 
 Here, the energy difference is consistently 10^-5 or less after an ecutwfc of 90, so going forward use ecutwfc=90 for all calculations in this system. As stated above, if this value is less than the recommended value in the pseudopotential file, it will automatically be updated for you (because if 90 represents convergence, and the pseudopotential file recommends a minimum of 100, then we know 100 is converged because it comes after 90 where the system is converged, but use the 100 instead because its the minimum recommended value).
 
 
 
-	•	ecutrho:
-	⁃	Same process as before, look in “ecutrho_output.txt”
-	⁃	With ecutrho convergence, we are testing different values based on a ratio of ecutrho to ecutwfc. For PAW pseudopotentials, a ratio of ecutrho:ecutwfc of 4 or 5 is usually good, while USPP recommends a ratio of 10-12. 
-	⁃	For kpoint and ecutwfc convergence, the script just calculates the ratio of ecutrho:ecutwfc from the recommended pseudopotential values, and uses that to calculate ecutrho based on the ecutwfc values we’re trying. Here, we test a range from 4 to 14.
-	⁃	Again, choose the ecutrho value representing convergence and input value for ‘ecutrho’ variable at the top of input.sh. 
+### ecutrho:
+* Same process as before, look in “ecutrho_output.txt”
+* With ecutrho convergence, we are testing different values based on a ratio of ecutrho to ecutwfc. For PAW pseudopotentials, a ratio of ecutrho:ecutwfc of 4 or 5 is usually good, while USPP recommends a ratio of 10-12. 
+* For kpoint and ecutwfc convergence, the script just calculates the ratio of ecutrho:ecutwfc from the recommended pseudopotential values, and uses that to calculate ecutrho based on the ecutwfc values we’re trying. Here, we test a range from 4 to 14.
+* Again, choose the ecutrho value representing convergence and input value for ‘ecutrho’ variable at the top of input.sh. 
 
-Example:
-
+**Example:**
+```
 360 -78.81223206 0
 450 -78.81219334 3.872e-05
 540 -78.81216520 2.814e-05
@@ -309,6 +309,7 @@ Example:
 1080 -78.81214498 1.9e-06
 1170 -78.81214130 3.68e-06
 1260 -78.81214414 2.84e-06
+```
 
 In this example, convergence occurs at 450 and above (which, since we decided on an ecutwfc of 90 in the previous step, is a ratio of ecutrho:ecutwfc of 5:1, in line with the recommendations for PAW pseudopotentials). 
 
@@ -317,31 +318,33 @@ In this example, convergence occurs at 450 and above (which, since we decided on
 At this point, the only manual work you have to do is checking that everything is running properly (ie after updating input.sh file, then ./input.sh to run the next calculation type, checking the script file it generates, check the .in/.out files to make sure everything is formatted properly etc.). 
 
 From here: 
-	•	Running ‘lattice’ as calculation type will test a huge range of lattice parameters. The script will pull out energies from each lattice parameter .out file.
-	•	Running ‘geometry’ as calculation type will run full geometry optimization. First, however, we have to use the previous results to figure out what the ideal unit cell volume is.
-	⁃	The script takes the lattice parameters from the previous step, calculates unit cell volume, determine which volume has the lowest associated energy (from the lattice parameter calculation), filter the data to only include volumes/energies where the volume is +-10% of the volume with the lowest energy (explained in a second), then will fit the filtered data to BIrch-Murnaghan equation of state
-	⁃	Birch-Murnaghan fitting is valid within +-10% of the ideal volume, hence the filtering of the data above to get a better fit. 
-	⁃	The script automatically adjusts the input file for B-M fitting based on the symmetry type (for cubic, it wants lattice parameter vs energy, for non cubic it wants volume vs energy).
-	⁃	So, to prepare for fitting to B-M, the script will convert to Angstroms if needed (HCP systems have lattice parameter provided in Bohr units), calculate the volume, filter the data, and supply either lattice parameter+energy or volume+energy. 
-	⁃	Then, from the B-M fit the script will extract the ideal volume (V0), bulk modulus estimate, and (for cubic systems only) the ideal lattice parameter A0.
-	⁃	For cubic systems, we have the ideal volume/lattice parameter so we are done FOR NOW. For non cubic systems, we have the ideal volume from volume-energy relationship, but now need to figure out the best combination of a/b/c dimensions of the unit cell that give that volume. 
-	⁃	So, the script takes the ideal volume and back-calculates the lattice parameter ‘a’ based on the b/a and c/a ratios. 
-	⁃	For HCP, b=a so b/a=1, so want to test a range of c/a ratios to find the best one (and therefore the best a and b values) that produces the ideal volume. By varying c/a, the script back calculates ‘a’ from the ideal volume V0 for each possible c/a ratio, runs a calculation, and extracts the energy associated with each c/a ratio.
-	⁃	For Orthorhombic, a=/b=/c. Too much to vary BOTH b/a and c/a (because as change 1, have to change the other), so keep c/a constant (if using .cif file keep it at the initial c/a ratio from the .cif file, if no .cif file use the manually input c_a variable). Then, using the same process as HCP, vary b/a ratio and back calculate lattice parameter ‘a’ from ideal volume V0, calculating energy associated with each b/a ratio.
-	•	Running ‘relax’ calculation allows atomic relaxation (that is, atoms can now move) while keeping the unit cell in tact (at the ideal volume). 
-	⁃	The script takes the ideal volume from before, then the ideal lattice parameter (a0 from B-M fit for cubic, calculated from ideal c/a for HCP based on which produces the lowest energy, or calculated from ideal b/a for Orthorhombic based on which produces the lowest energy), and allows the atoms to move in case there are any forces acting on the atoms. 
-	⁃	NOW YOU HAVE TO MANUALLY CHECK THE ‘RELAX’ OUTPUT (.out) FILE. Within the .out file is a line that says “Begin final coordinates”. Find this and make sure the atomic positions haven’t changed (compare to manual ‘atomic_position’ input or initial .cif file coordinates). 
-	⁃	If atomic positions haven’t changed, then you can continue onto the next calculation. 
-	⁃	If atomic positions HAVE changed, then update your atomic positions by altering the input file manual)atomic_positions variable (even if you have been using a .cif file).
+* Running ‘lattice’ as calculation type will test a huge range of lattice parameters. The script will pull out energies from each lattice parameter .out file.
+* Running ‘geometry’ as calculation type will run full geometry optimization. First, however, we have to use the previous results to figure out what the ideal unit cell volume is.
+		* The script takes the lattice parameters from the previous step, calculates unit cell volume, determine which volume has the lowest associated energy (from the lattice parameter calculation), filter the data to only include volumes/energies where the volume is +-10% of the volume with the lowest energy (explained in a second), then will fit the filtered data to BIrch-Murnaghan equation of state
+		* Birch-Murnaghan fitting is valid within +-10% of the ideal volume, hence the filtering of the data above to get a better fit. 
+		* The script automatically adjusts the input file for B-M fitting based on the symmetry type (for cubic, it wants lattice parameter vs energy, for non cubic it wants volume vs energy).
+		* So, to prepare for fitting to B-M, the script will convert to Angstroms if needed (HCP systems have lattice parameter provided in Bohr units), calculate the volume, filter the data, and supply either lattice parameter+energy or volume+energy. 
+		* Then, from the B-M fit the script will extract the ideal volume (V0), bulk modulus estimate, and (for cubic systems only) the ideal lattice parameter A0.
+		* For cubic systems, we have the ideal volume/lattice parameter so we are done FOR NOW. For non cubic systems, we have the ideal volume from volume-energy relationship, but now need to figure out the best combination of a/b/c dimensions of the unit cell that give that volume. 
+		* So, the script takes the ideal volume and back-calculates the lattice parameter ‘a’ based on the b/a and c/a ratios. 
+		* For HCP, b=a so b/a=1, so want to test a range of c/a ratios to find the best one (and therefore the best a and b values) that produces the ideal volume. By varying c/a, the script back calculates ‘a’ from the ideal volume V0 for each possible c/a ratio, runs a calculation, and extracts the energy associated with each c/a ratio.
+		* For Orthorhombic, a=/b=/c. Too much to vary BOTH b/a and c/a (because as change 1, have to change the other), so keep c/a constant (if using .cif file keep it at the initial c/a ratio from the .cif file, if no .cif file use the manually input c_a variable). Then, using the same process as HCP, vary b/a ratio and back calculate lattice parameter ‘a’ from ideal volume V0, calculating energy associated with each b/a ratio.
+* Running ‘relax’ calculation allows atomic relaxation (that is, atoms can now move) while keeping the unit cell in tact (at the ideal volume). 
+		* The script takes the ideal volume from before, then the ideal lattice parameter (a0 from B-M fit for cubic, calculated from ideal c/a for HCP based on which produces the lowest energy, or calculated from ideal b/a for Orthorhombic based on which produces the lowest energy), and allows the atoms to move in case there are any forces acting on the atoms. 
+		* NOW YOU HAVE TO MANUALLY CHECK THE ‘RELAX’ OUTPUT (.out) FILE. Within the .out file is a line that says “Begin final coordinates”. Find this and make sure the atomic positions haven’t changed (compare to manual ‘atomic_position’ input or initial .cif file coordinates). 
+		* If atomic positions haven’t changed, then you can continue onto the next calculation. 
+		* If atomic positions HAVE changed, then update your atomic positions by altering the input file manual)atomic_positions variable (even if you have been using a .cif file).
 
 
 For the final step, run ‘vc-relax’ calculation. It is possible to bypass the lattice parameter, geometry optimization, and relax calculation steps by running vc-relax from the beginning. However, vc-relax allows atom positions AND unit cell volume/shape to all vary at the same time in order to find the ideal setup (the ideal cell shape/volume and atom spacing within that shape/volume). Because of the number of degrees of freedom, this can take a really long time depending on your system. Running the steps that we have up until now dramatically increases the computing speed/efficiency because each step gets us closer and closer to the ‘finish line’, so we just use vc-relax to get us the last little bit. By running a bunch of fast, low-computing power scf calculations, we shave off the heaviest computing steps. 
 
 Now, once vc-relax has finished, go to the vc-relax.out file and scroll down to the line with “Beginning final coordinates”. Compare the “new unit-cell volume’, ‘cell parameters’, and ‘atomic positions’ to your previous ones (which can be found at the top of the .out file). Has the shape, size, or atomic positions changed substantially? If so, this is your ideal unit cell that you should use going forward. If not, then we had already found the ideal unit cell/atomic arrangements from our optimization process. Either way, we now have our ideal unit cell for running analyses or generating supercells. 
 
-Example:
+**Example:**
 
 This is from the vc-relax.out file of our system above. We found that ‘relax’ did not change any atomic coordinates, so we moved onto vc-relax. At the top of the .out file is our input parameters:
+
+```
 
      bravais-lattice index     =            4
      lattice parameter (alat)  =       5.4038  a.u.
@@ -370,9 +373,11 @@ This is from the vc-relax.out file of our system above. We found that ‘relax�
                a(1) = (   1.000000   0.000000   0.000000 )
                a(2) = (  -0.500000   0.866025   0.000000 )
                a(3) = (   0.000000   0.000000   1.640000 )
+```
 
 And further down is the calculated unit cell:
 
+```
 Begin final coordinates
      new unit-cell volume =    224.12617 a.u.^3 (    33.21207 Ang^3 )
      density =      2.69805 g/cm^3
@@ -386,12 +391,13 @@ ATOMIC_POSITIONS (crystal)
 Al               0.0000000000        0.0000000000        0.0000000000
 Al               0.6666666667        0.3333333333        0.5000000000
 End final coordinates
+```
 
 As we can see, initial unit cell volume (which if you remember is our V0 from B-M fit) is 224.1118 a.u.^3, while our new volume is 224.12617 a.u.^3. Lattice parameter (which is celldm(1) in Bohr units since this is an HCP structure), went from 5.403769 to 5.40376856 (so unchanged). Atomic positions were unchanged. C/a (found in the bottom right of CELL_PARAMETERS) went from 1.64 to 1.642132016, so a very slight increase. Then CELL_PARAMETERS show a very slight change in the overall shape, as this lists xyz coordinates of the cell in terms of lattice parameter (so 1 lattice vector goes to (1,0,0)*a, 2nd lattice vector goes to (-0.5,0.866025,0)*a, and 3rd goes to (0,0,1.64)*a in our input structure). 
 
 To know if these minuscule differences are meaningful, compare energy of input (from ‘geometry’) which is -79.00133768 Ry vs output of -79.00133929 Ry. Almost no difference. Then looking at stress/pressure tensors:
 
-
+```
      Computing stress (Cartesian axis) and pressure
 
           total   stress  (Ry/bohr**3)                   (kbar)     P=        0.04
@@ -406,14 +412,15 @@ To know if these minuscule differences are meaningful, compare energy of input (
   -0.00000130  -0.00000000   0.00000000           -0.19       -0.00        0.00
   -0.00000000  -0.00000130   0.00000000           -0.00       -0.19        0.00
    0.00000000   0.00000000   0.00000207            0.00        0.00        0.30
+```
 
 Given our input parameter had a convergence threshold of 0.5 for pressure, and the energy only decreased by 2.2*10^-5 eV, we can consider these the same structures and our original from geometry optimization is fine to use if we wanted to. 
 
 
 
-##################################################################################################################################
+####################################################################################################
 
-OPTIMIZED UNIT CELL ANALYSES:
+# OPTIMIZED UNIT CELL ANALYSES:
 
 First, extract elastic constants. 
 
