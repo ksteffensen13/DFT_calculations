@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# After making necessary changes (ie calculation type), run as executable: ./input.sh
+
 ############################################## MANUAL INPUT ##############################################
 
   # state calculation type from: kpoints, ecutwfc, ecutrho, lattice, geometry, relax, vc-relax
