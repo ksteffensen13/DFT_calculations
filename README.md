@@ -109,7 +109,9 @@ ecutrho=450
 2. System information
 * First, enter system name within the quotation marks (chemical formula, ie “Al”, “AlCe”, “AlCe3”, “Al11Ce3” etc.).
 * Second, enter the unique elements in each system in quotations, separated by a space (ie “Al”, “Al Ce”, “Al Si Ce” etc.).
-* Third, enter paths to general directory containing ALL subfolders for your index files, pseudopotential files, calculations etc (this is ‘compute_directory’). Enter path to location of all your scripts (‘script_directory’), path to location of index files from above (‘index_directory’), and a path to pseudopotential files (‘pseudo_directory’). 
+* Third, enter paths to general directory containing ALL subfolders for your index files, pseudopotential files, calculations etc (this is ‘compute_directory’).
+* Enter path to location of all your scripts (‘script_directory’), path to location of index files from above (‘index_directory’), and a path to pseudopotential files (‘pseudo_directory’).
+* Also for my scripts, I link to a .txt document containing all of the python wheels I need (mainly numpy and cif2cell), and my scripts call on it **when starting from a .cif file**. So I also need to link it here.
 * NOTE: In all directory paths, make sure you don’t include a slash at the end
     * ie, use "/home/username/scratch" NOT "/home/username/scratch/“, because the extra slash at the end will cause the system to be unable to find the files its looking for. For example, if you need to find “Al.cif”, using the first option it will look for "/home/username/scratch/Al.cif”, which it will find as long as "/home/ksteffen/scratch/QUEENS" is the correct path. Using the slash at the end will cause it to look for "/home/username/scratch//Al.cif”. That extra slash will mess it up, it won’t be able to find the correct .cif file, and the script will fail. 
 
@@ -127,6 +129,8 @@ script_directory="/home/username/scratch/DFT_scripts"
 index_directory="/home/username/scratch/DFT_index_files"
 # path to pseudopotential files
 pseudo_directory="/home/username/scratch/pseudopotentials"
+# where is .txt file with list of python wheels for easy installation when calling python
+python_wheels="/home/ksteffen/python_wheels.txt"	
 ```
 
 
