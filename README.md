@@ -1,4 +1,4 @@
-# this file will continually be updated as new scripts are incorporated into the workflow
+**this file will continually be updated as new scripts are incorporated into the workflow**
 
 ####################################################################################################
 
