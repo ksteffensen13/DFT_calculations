@@ -1,8 +1,9 @@
 **this file will continually be updated as new scripts are incorporated into the workflow**
+General tutorials and links to important/helpful resources will be uploaded to new folders in the future.
 
 ####################################################################################################
 
-THIS IS AN INSTRUCTION MANUAL FOR RUNNING DFT CONVERGENCE AND CALCULATIONS FOR ALUMINUM ALlOYS USING THE SCRIPTS THAT I CREATED
+This is an instruction manual for running DFT convergence, calculations, and analyses for aluminum alloys using these custom scripts. They are based on an assumption of running quantum espresso on Digital Research Alliance of Canada computing clusters, but can be tailored for other uses if needed. 
 
 ####################################################################################################
 
